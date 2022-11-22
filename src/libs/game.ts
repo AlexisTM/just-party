@@ -1,32 +1,35 @@
 import { encode, decode } from 'cborg'
 
+enum CLIENT_TYPES {
+    Unknown = 0,
+    Host = 1,
+    Player = 2,
+};
 class Game {
+    ws?: WebSocket = undefined;
+    type: CLIENT_TYPES;
+
     constructor() {
-        this.CLIENT_TYPES = {
-            Unknown: 0,
-            Host: 1,
-            Player: 2,
-        };
         this.ws = undefined;
-        this.type = this.CLIENT_TYPES.Unknown;
+        this.type = CLIENT_TYPES.Unknown;
     }
 
     is_host() {
-        return this.type == this.CLIENT_TYPES.Host;
+        return this.type == CLIENT_TYPES.Host;
     }
 
     is_player() {
-        return this.type == this.CLIENT_TYPES.Player;
+        return this.type == CLIENT_TYPES.Player;
     }
 
     is_unknown() {
-        return this.type == this.CLIENT_TYPES.Unknown;
+        return this.type == CLIENT_TYPES.Unknown;
     }
 
-    join(roomid) {
+    join(roomid: string) {
         if (roomid.length == 4) {
             if (this.conn_start(roomid)) {
-                this.type = this.CLIENT_TYPES.Player;
+                this.type = CLIENT_TYPES.Player;
                 return true;
             }
         }
@@ -35,19 +38,19 @@ class Game {
 
     create() {
         if (this.conn_start("CREATE")) {
-            this.type = this.CLIENT_TYPES.Host;
+            this.type = CLIENT_TYPES.Host;
             return true;
         }
         return false;
     }
 
-    conn_start(game) {
+    conn_start(game: string) {
         try {
             if (this.ws != undefined && (this.ws.readyState == 2 || this.ws.readyState == 3)) {
-                this.ws.onclose = undefined;
-                this.ws.onerror = undefined;
-                this.ws.onopen = undefined;
-                this.ws.onmessage = undefined;
+                this.ws.onclose = () => { };
+                this.ws.onerror = () => { };
+                this.ws.onopen = () => { };
+                this.ws.onmessage = () => { };
                 this.ws.close();
                 this.ws = undefined;
             }
@@ -103,7 +106,7 @@ class Game {
         }
     }
 
-    send(val) {
+    send(val: any) {
         if (this.ws != undefined && this.ws.readyState == 1) {
             this.ws.send(val);
         } else {
@@ -111,12 +114,12 @@ class Game {
         }
     }
 
-    send_cbor(val) {
+    send_cbor(val: any) {
         this.on_log('[MESSAGE OUT] Data sent: ' + JSON.stringify(val));
         this.send(encode(val));
     }
 
-    prepare(max_players) {
+    prepare(max_players: Number) {
         this.send_cbor({
             cmd: 'prepare',
             max_players: Number(max_players),
@@ -129,7 +132,7 @@ class Game {
         })
     }
 
-    kick(player) {
+    kick(player: Number) {
         this.send_cbor({
             cmd: 'kick',
             player,
@@ -144,12 +147,7 @@ class Game {
 
     // to is an array of user id
     // Data is a raw data (an array or CBOR encoded object)
-    to(to, data) {
-        // CBOR fails to serialize bytearray (its output)
-        // serde (ciborium) fails to deserialize the output of this CBOR using Uint8Array
-        // Thus converting it all the way to an array in a triple copy design patter.
-        // const typedArray = new Uint8Array(data);
-        // const array = [...typedArray];
+    to(to: Array<Number>, data: any) {
         this.send_cbor({
             cmd: 'to',
             to,
@@ -159,13 +157,18 @@ class Game {
 
     // to is an array of user id
     // Data will be cbor encoded
-    to_cbor(to, data) {
-        this.to(to, encode(data))
+    to_cbor(to: Array<Number>, data: any) {
+        // CBOR fails to serialize bytearray (its output)
+        // serde (ciborium) fails to deserialize the output of this CBOR using Uint8Array
+        // Thus converting it all the way to an array in a triple copy design patter.
+        const typedArray = new Uint8Array(data);
+        const array = [...typedArray];
+        this.to(to, encode(array))
     }
 
     // to is an array of user id
     // Data is a string
-    to_str(to, data) {
+    to_str(to: Array<Number>, data: string) {
         this.send_cbor({
             cmd: 'to_str',
             to,
@@ -174,33 +177,33 @@ class Game {
     }
 
     // Player callbacks
-    on_host_bin(data) {
+    on_host_bin(data: any) {
         this.on_log('[MESSAGE IN] ' + JSON.stringify(data));
     }
-    on_host_str(data) {
+    on_host_str(data: any) {
         this.on_log('[MESSAGE IN] ' + data);
     }
     // Host callbacks
-    on_prepare_reply(data) {
+    on_prepare_reply(data: any) {
         this.on_log('[PREPARE_REPLY] Game key: ' + data.key);
     }
-    on_player_data(data) {
+    on_player_data(data: any) {
         this.on_log('[PLAYER_DATA] ' + data.from + ' sent: ' + data.data);
     }
-    on_stop(data) {
+    on_stop(data: any) {
         this.on_log('[STOP]');
     }
-    on_error(data) {
+    on_error(data: any) {
         this.on_log('[ERROR] reason: ' + data.reason);
     }
-    on_state(data) {
+    on_state(data: any) {
         this.on_log('[STATE] players: ' + JSON.stringify(data));
     }
 
     // Configuration related
-    on_log(logdata) { }
-    on_ws_close(data) {
-        this.on_log('[CLOSED] Code: ' + a.code + ' Reason: \"' + a.reason + '\"');
+    on_log(logdata: string) { }
+    on_ws_close(data: any) {
+        this.on_log('[CLOSED] Code: ' + data.code + ' Reason: \"' + data.reason + '\"');
     }
 };
 

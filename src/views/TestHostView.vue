@@ -2,7 +2,7 @@
 import { defineComponent } from 'vue';
 import router from '../router';
 import Game from '../libs/game';
-import {decode} from 'cborg';
+import { decode } from 'cborg';
 
 export default defineComponent({
     data() {
@@ -17,35 +17,30 @@ export default defineComponent({
         }
     },
     mounted() {
-        console.log("hey");
         this.game.on_prepare_reply = (data: any) => {
-                this.roomid = data.key;
-            };
-            this.game.on_player_data = (data: any) => {
-                console.log(data);
-            };
-            this.game.on_stop = (data: any) => {
-                console.log(data);
-            };
-            this.game.on_error = (data: any) => {
-                console.log(data);
-            };
-            this.game.on_state = (data: any) => {
-                this.accept_players = data.accept_conns;
-                this.players = data.players;
-                console.log(data);
-            };
-            this.game.on_host_str = (data: any) => {
-                console.log("Str data: ", data);
-            }
-            this.game.on_host_bin = (data: any) => {
-                console.log("Bin data: ", decode(data), " from message:", data);
-            }
-            this.game.on_ws_close = (data: any) => {
-                console.log(data);
-                router.push('/');
-            }
-            this.game.create();
+            this.roomid = data.key;
+        };
+        this.game.on_player_data = (data: any) => {
+            console.log(data);
+        };
+        this.game.on_stop = (data: any) => {
+            console.log(data);
+        };
+        this.game.on_error = (data: any) => {
+            console.log(data);
+        };
+        this.game.on_state = (data: any) => {
+            this.accept_players = data.accept_conns;
+            this.players = data.players;
+            console.log(data);
+        };
+        this.game.on_ws_close = (data: any) => {
+            console.log(data);
+            router.push('/');
+        }
+        if (!this.game.create()) {
+            router.push('/');
+        }
     },
     methods: {
         stop() { console.log("STOP"); },

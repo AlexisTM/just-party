@@ -25,7 +25,7 @@ const router = createRouter({
       component: TestHostView,
     },
     {
-      path: '/test/player',
+      path: '/test/player/:roomid',
       name: 'test player',
       component: TestPlayerView,
     }

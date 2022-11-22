@@ -1,6 +1,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import router from '../router';
+import Game from '../libs/game';
+import { decode } from 'cborg';
 
 export default defineComponent({
     data() {
@@ -11,11 +13,23 @@ export default defineComponent({
             accept_players: false,
             data_dest: "[]",
             data_to_send: '{"Hey": "oooh"}',
-            game: {},
+            game: new Game(),
         }
     },
-    setup() {
-        console.log("hey")
+    mounted() {
+        this.game.on_host_str = (data: any) => {
+            console.log("Str data: ", data);
+        }
+        this.game.on_host_bin = (data: any) => {
+            console.log("Bin data: ", decode(data), " from message:", data);
+        }
+        this.game.on_ws_close = (data: any) => {
+            console.log(data);
+            router.push('/');
+        }
+        if (!this.game.join(this.$route.params.roomid)) {
+            router.push('/');
+        }
     },
     methods: {
         stop() { console.log("STOP"); },
@@ -26,55 +40,26 @@ export default defineComponent({
 <template>
     <div class="column is-5-tablet is-4-desktop is-3-widescreen">
         <div class="box">
-            <div class="field">Room ID: {{ roomid }}</div>
-            <div class="field">Players: {{ players }}</div>
-            <div class="field">Accept more players: {{ accept_players }}</div>
             <div class="field">
-                <label class="label">Max players</label>
-                <div class="control has-icons-left">
-                    <input type="text" placeholder="8" v-model="max_players" class="input">
-                    <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                    </span>
-                </div>
-            </div>
-            <a class="field button is-success is-fullwidth" v-on:click="game.prepare(max_players)">
-                Prepare
-            </a>
-            <a class="field button is-success is-fullwidth" v-on:click="game.start()">
-                Start
-            </a>
-            <div class="field">
-                <label class="label">To: </label>
-                <div class="control has-icons-left">
-                    <input type="text" placeholder="[]" v-model="data_dest" class="input">
-                    <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                    </span>
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">Input str:</label>
+                <label class="label">Input</label>
                 <div class="control has-icons-left">
                     <input type="text" placeholder="{'some': 'data'}" v-model="data_to_send" class="input"
-                        @keyup.enter="game.to_str(JSON.parse(data_dest), data_to_send)">
+                        @keyup.enter="game.send(data_to_send)">
                     <span class="icon is-small is-left">
                         <i class="fa fa-envelope"></i>
                     </span>
                 </div>
             </div>
-            <a class="field button is-success is-fullwidth"
-                v-on:click="game.to_str(JSON.parse(data_dest), data_to_send)">
-                Send as String
-            </a>
-            <a class="field button is-success is-fullwidth"
-                v-on:click="game.to_cbor(JSON.parse(data_dest), data_to_send)">
-                Send as CBOR
-            </a>
-            <a class="field button is-success is-fullwidth" v-on:click="stop()">
-                Stop
-            </a>
+            <div class="field">
+                <a class="button is-success is-fullwidth" v-on:click="game.send(data_to_send)">
+                    Send as string
+                </a>
+            </div>
+            <div class="field">
+                <a class="button is-success is-fullwidth" v-on:click="game.send_cbor(data_to_send)">
+                    Send as CBOR
+                </a>
+            </div>
         </div>
     </div>
-
 </template>

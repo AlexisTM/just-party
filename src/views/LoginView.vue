@@ -11,8 +11,13 @@ export default defineComponent({
     }
   },
   methods: {
-    join() { router.push(`/test/player`); console.log(this.roomid); },
-    create() { router.push(`/test/host`); console.log("create") },
+    join() {
+      router.push(`/test/player/${this.roomid}`);
+      console.log(this.roomid);
+    },
+    create() {
+      router.push(`/test/host`);
+    },
   }
 })
 </script>
