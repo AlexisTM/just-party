@@ -2,10 +2,11 @@
 import { defineComponent } from 'vue'
 import router from '../router';
 
+type LoginTab = 'join' | 'create';
 export default defineComponent({
   data() {
     return {
-      tab: 'join', // ['join', 'create']
+      tab: 'join' as LoginTab,
       roomid: '',
       game_selected: 'cadavre_exquis_str'
     }
@@ -13,7 +14,6 @@ export default defineComponent({
   methods: {
     join() {
       router.push(`/test/player/${this.roomid}`);
-      console.log(this.roomid);
     },
     create() {
       router.push(`/test/host`);

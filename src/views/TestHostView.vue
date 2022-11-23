@@ -26,6 +26,9 @@ export default defineComponent({
         this.game.on_stop = (data: any) => {
             console.log(data);
         };
+        this.game.on_log = (data: any) => {
+            console.log(data);
+        };
         this.game.on_error = (data: any) => {
             console.log(data);
         };

@@ -8,10 +8,6 @@ export default defineComponent({
     data() {
         return {
             roomid: '',
-            players: [],
-            max_players: 0,
-            accept_players: false,
-            data_dest: "[]",
             data_to_send: '{"Hey": "oooh"}',
             game: new Game(),
         }
@@ -20,6 +16,9 @@ export default defineComponent({
         this.game.on_host_str = (data: any) => {
             console.log("Str data: ", data);
         }
+        this.game.on_log = (data: any) => {
+            console.log(data);
+        };
         this.game.on_host_bin = (data: any) => {
             console.log("Bin data: ", decode(data), " from message:", data);
         }
@@ -27,7 +26,8 @@ export default defineComponent({
             console.log(data);
             router.push('/');
         }
-        if (!this.game.join(this.$route.params.roomid)) {
+        this.roomid = this.$route.params.roomid as string;
+        if (!this.game.join(this.roomid)) {
             router.push('/');
         }
     },
