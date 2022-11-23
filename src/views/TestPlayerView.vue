@@ -16,11 +16,8 @@ export default defineComponent({
         this.game.on_host_str = (data: any) => {
             console.log("Str data: ", data);
         }
-        this.game.on_log = (data: any) => {
-            console.log(data);
-        };
         this.game.on_host_bin = (data: any) => {
-            console.log("Bin data: ", decode(data), " from message:", data);
+            console.log("Bin data: ", decode(new Uint8Array(data)), " from message:", data);
         }
         this.game.on_ws_close = (data: any) => {
             console.log(data);

@@ -68,8 +68,7 @@ class Game {
                 this.ws.onopen = (a) => { this.on_log('[OPENED]'); }
                 this.ws.onmessage = (a) => {
                     if (this.is_host()) {
-                        const typedArray = new Uint8Array(a.data);
-                        let msg = decode(typedArray);
+                        let msg = decode(new Uint8Array(a.data));
                         this.on_log("[MESSAGE IN] " + JSON.stringify(msg));
                         if (msg.cmd == 'prepare_reply') {
                             this.on_prepare_reply(msg);
@@ -116,7 +115,7 @@ class Game {
 
     send_cbor(val: any) {
         this.on_log('[MESSAGE OUT] Data sent: ' + JSON.stringify(val));
-        this.send(encode(val));
+        this.send(encode(val).buffer);
     }
 
     prepare(max_players: Number) {
@@ -161,9 +160,10 @@ class Game {
         // CBOR fails to serialize bytearray (its output)
         // serde (ciborium) fails to deserialize the output of this CBOR using Uint8Array
         // Thus converting it all the way to an array in a triple copy design patter.
-        const typedArray = new Uint8Array(data);
-        const array = [...typedArray];
-        this.to(to, encode(array))
+        // const typedArray = new Uint8Array(data);
+        // const array = [...typedArray];
+        const array = [...encode(data)]
+        this.to(to, array)
     }
 
     // to is an array of user id
