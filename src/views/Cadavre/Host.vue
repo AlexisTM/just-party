@@ -9,7 +9,7 @@ export default defineComponent({
         return {
             roomid: '',
             players: [],
-            max_players: 0,
+            max_players: 8,
             accept_players: false,
             data_dest: "[]",
             data_to_send: '{"Hey": "oooh"}',
@@ -43,7 +43,7 @@ export default defineComponent({
         }
     },
     methods: {
-        stop() { console.log("STOP"); },
+        stop() { this.game.stop(); },
     }
 })
 </script>
