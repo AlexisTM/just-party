@@ -1,23 +1,46 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import router from '../router';
+import axios from 'axios'
 
 type LoginTab = 'join' | 'create';
+type GameList = '' | 'test' | 'cadvrs';
 export default defineComponent({
   data() {
     return {
       tab: 'join' as LoginTab,
       roomid: '',
-      game_selected: 'cadvrs',
+      game_to_start: 'cadvrs' as GameList, // To be created
       can_join: false, // The game type has been checked
+      game_to_join: '' as GameList,
     }
   },
   methods: {
     join() {
-      router.push(`/${this.game_selected}/player/${this.roomid}`);
+      if (this.can_join) {
+        router.push(`/${this.game_to_join}/player/${this.roomid}`);
+      }
     },
     create() {
-      router.push(`/${this.game_selected}/host`);
+      router.push(`/${this.game_to_start}/host`);
+    },
+    gametype_fetcher() {
+      if (this.roomid.length == 4) {
+        this.can_join = false;
+        this.game_to_join = ''
+        axios.get(`http://127.0.0.1:8081/${this.roomid}`).then((resp) => {
+          this.game_to_join = resp.data;
+          this.can_join = true;
+        }).catch(
+          () => {
+            this.can_join = false;
+            this.game_to_join = ''
+          }
+        )
+      } else {
+        this.can_join = false;
+        this.game_to_join = ''
+      }
     },
   }
 })
@@ -38,21 +61,22 @@ export default defineComponent({
         <div class="field">
           <label for="" class="label">Room ID</label>
           <div class="control has-icons-left">
-            <input type="text" placeholder="XYEX" v-model="roomid" class="input" @keyup.enter="join()">
+            <input type="text" placeholder="XYEX" v-model="roomid" class="input" @keyup.enter="join()"
+              @input="gametype_fetcher">
             <span class="icon is-small is-left">
               <i class="fa fa-envelope"></i>
             </span>
           </div>
         </div>
         <div class="field is-fullwi8dth column">
-          <a class="button is-success is-fullwidth" v-on:click="join()">
+          <a class="button is-success is-fullwidth" :disabled='can_join' v-on:click="join()">
             Join a room
           </a>
         </div>
       </div>
       <div v-show="(tab == 'create')" class="is-fullwidth column">
         <div class="field select is-fullwidth">
-          <select v-model="game_selected">
+          <select v-model="game_to_start">
             <option value="test">Test</option>
             <option value="cadvrs">Cadavre exquis [Écris]</option>
           </select>
