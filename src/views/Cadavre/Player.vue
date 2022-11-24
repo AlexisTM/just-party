@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
-import router from '../router';
-import Game from '../libs/game';
+import router from '../../router';
+import Game from '../../libs/game';
 import { decode } from 'cborg';
 
 export default defineComponent({
@@ -14,7 +14,8 @@ export default defineComponent({
     },
     mounted() {
         this.game.on_host_str = (data: any) => {
-            console.log("Str data: ", data);
+            let msg = JSON.parse(data);
+            console.log("Str data: ", msg);
         }
         this.game.on_host_bin = (data: any) => {
             console.log("Bin data: ", decode(new Uint8Array(data)), " from message:", data);

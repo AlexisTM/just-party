@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
-import router from '../router';
-import Game from '../libs/game';
+import router from '../../router';
+import Game from '../../libs/game';
 import { decode } from 'cborg';
 
 export default defineComponent({
@@ -63,7 +63,7 @@ export default defineComponent({
                     </span>
                 </div>
             </div>
-            <a class="field button is-success is-fullwidth" v-on:click="game.prepare(max_players)">
+            <a class="field button is-success is-fullwidth" v-on:click="game.prepare(max_players, 'test')">
                 Prepare
             </a>
             <a class="field button is-success is-fullwidth" v-on:click="game.start()">

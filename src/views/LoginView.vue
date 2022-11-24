@@ -8,15 +8,16 @@ export default defineComponent({
     return {
       tab: 'join' as LoginTab,
       roomid: '',
-      game_selected: 'cadavre_exquis_str'
+      game_selected: 'cadvrs',
+      can_join: false, // The game type has been checked
     }
   },
   methods: {
     join() {
-      router.push(`/test/player/${this.roomid}`);
+      router.push(`/${this.game_selected}/player/${this.roomid}`);
     },
     create() {
-      router.push(`/test/host`);
+      router.push(`/${this.game_selected}/host`);
     },
   }
 })
@@ -52,7 +53,8 @@ export default defineComponent({
       <div v-show="(tab == 'create')" class="is-fullwidth column">
         <div class="field select is-fullwidth">
           <select v-model="game_selected">
-            <option value="cadavre_exquis_str">Cadavre exquis [Écris]</option>
+            <option value="test">Test</option>
+            <option value="cadvrs">Cadavre exquis [Écris]</option>
           </select>
         </div>
         <div class="field">

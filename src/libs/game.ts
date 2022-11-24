@@ -118,10 +118,11 @@ class Game {
         this.send(encode(val).buffer);
     }
 
-    prepare(max_players: Number) {
+    prepare(max_players: Number, name: string) {
         this.send_cbor({
             cmd: 'prepare',
             max_players: Number(max_players),
+            name: name
         });
     }
 

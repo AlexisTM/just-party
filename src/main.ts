@@ -13,8 +13,3 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
-
-import {decode,encode} from 'cborg'
-
-Window.decode = decode;
-Window.encode = encode;
