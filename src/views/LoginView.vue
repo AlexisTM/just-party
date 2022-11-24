@@ -69,9 +69,12 @@ export default defineComponent({
           </div>
         </div>
         <div class="field is-fullwi8dth column">
-          <a class="button is-success is-fullwidth" :disabled='can_join' v-on:click="join()">
+          <a class="button is-success is-fullwidth" v-on:click="join()">
             Join a room
           </a>
+        </div>
+        <div class="field is-fullwi8dth column">
+          {{ game_to_join }}
         </div>
       </div>
       <div v-show="(tab == 'create')" class="is-fullwidth column">
