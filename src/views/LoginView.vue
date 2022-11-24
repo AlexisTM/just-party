@@ -5,6 +5,7 @@ import axios from 'axios'
 
 type LoginTab = 'join' | 'create';
 type GameList = '' | 'test' | 'cadvrs';
+
 export default defineComponent({
   data() {
     return {
@@ -13,6 +14,10 @@ export default defineComponent({
       game_to_start: 'cadvrs' as GameList, // To be created
       can_join: false, // The game type has been checked
       game_to_join: '' as GameList,
+      game_names: {
+        'test': 'Test mode',
+        'cadvrs': 'Cadavre Exquis (string mode)',
+      }
     }
   },
   methods: {
@@ -74,7 +79,7 @@ export default defineComponent({
           </a>
         </div>
         <div class="field is-fullwi8dth column">
-          {{ game_to_join }}
+          {{ game_names[game_to_join] }}
         </div>
       </div>
       <div v-show="(tab == 'create')" class="is-fullwidth column">
