@@ -12,7 +12,7 @@ export default defineComponent({
             game: new Game(),
             request: {
                 id: 0,
-                prompt: '',
+                prompt: 'The game is starting',
                 type: '',
                 input_default: '',
                 button: '',
@@ -23,6 +23,7 @@ export default defineComponent({
     mounted() {
         this.game.on_host_str = (data: any) => {
             this.request = JSON.parse(data) as CadavreRequest;
+            this.reply_value = '';
             console.log("Str data: ", this.request);
         }
         this.game.on_host_bin = (data: any) => {

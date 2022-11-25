@@ -5,6 +5,32 @@ import Game from '../../libs/game';
 import { decode } from 'cborg';
 import type { CadavreRequest, CadavreResponse, RequestType } from './comm';
 
+interface Scores {
+    [key: number]: number
+}
+
+enum ResponseType {
+    Subject = 0,
+    Verb = 1,
+    SubjectComplement = 2,
+    Adjective = 3,
+}
+
+interface PlayerRoundData {
+    player: number;
+    type: ResponseType;
+    result: string;
+}
+
+interface PlayerRound {
+    [key: number]: PlayerRoundData
+}
+
+interface Round {
+    winner: number;
+    data: PlayerRound;
+}
+
 export default defineComponent({
     data() {
         return {
@@ -22,7 +48,11 @@ export default defineComponent({
                 input_default: 'Someone good',
                 button: 'Send',
             } as CadavreRequest,
-
+            game_data: {
+                scores: {} as Scores,
+                rounds: [] as Array<Round>,
+                current_round: 0,
+            },
         }
     },
     mounted() {
@@ -30,7 +60,9 @@ export default defineComponent({
             this.roomid = data.key;
         };
         this.game.on_player_data = (data: any) => {
-            console.log(data);
+            const player = data.from;
+            const player_reply = JSON.parse(data.data);
+            this.game_data.rounds[this.game_data.current_round].data[player] = player_reply;
         };
         this.game.on_stop = (data: any) => {
             console.log(data);
@@ -46,6 +78,9 @@ export default defineComponent({
         this.game.on_ws_close = (data: any) => {
             console.log(data);
             router.push('/');
+        }
+        this.game.on_player_joined = (data: any) => {
+            console.log("New player! ", data.player);
         }
         if (!this.game.create()) {
             router.push('/');
