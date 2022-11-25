@@ -42,9 +42,6 @@ export default defineComponent({
                 <div class="control has-icons-left">
                     <input type="text" placeholder="{'some': 'data'}" v-model="data_to_send" class="input"
                         @keyup.enter="game.send(data_to_send)">
-                    <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                    </span>
                 </div>
             </div>
             <div class="field">

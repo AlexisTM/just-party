@@ -3,19 +3,29 @@ import { defineComponent } from 'vue';
 import router from '../../router';
 import Game from '../../libs/game';
 import { decode } from 'cborg';
+import type CadavreRequest from './comm';
+import type CadavreReponse from './comm';
+import type RequestType from './comm';
 
 export default defineComponent({
     data() {
         return {
             roomid: '',
-            data_to_send: '{"Hey": "oooh"}',
             game: new Game(),
+            request: {
+                id: 0,
+                prompt: '',
+                type: '',
+                input_default: '',
+                button: '',
+            } as CadavreRequest,
+            reply_value: '',
         }
     },
     mounted() {
         this.game.on_host_str = (data: any) => {
-            let msg = JSON.parse(data);
-            console.log("Str data: ", msg);
+            this.request = JSON.parse(data) as CadavreRequest;
+            console.log("Str data: ", this.request);
         }
         this.game.on_host_bin = (data: any) => {
             console.log("Bin data: ", decode(new Uint8Array(data)), " from message:", data);
@@ -30,7 +40,13 @@ export default defineComponent({
         }
     },
     methods: {
-        stop() { console.log("STOP"); },
+        send() {
+            let res: CadavreReponse = {
+                id: this.request.id,
+                value: this.reply_value,
+            };
+            this.game.send(JSON.stringify(res));
+        },
     }
 })
 </script>
@@ -39,23 +55,16 @@ export default defineComponent({
     <div class="column is-5-tablet is-4-desktop is-3-widescreen">
         <div class="box">
             <div class="field">
-                <label class="label">Input</label>
-                <div class="control has-icons-left">
-                    <input type="text" placeholder="{'some': 'data'}" v-model="data_to_send" class="input"
-                        @keyup.enter="game.send(data_to_send)">
-                    <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                    </span>
+                <label class="label">{{ request.prompt }}</label>
+                <div class="control has-icons-left" v-show="request.type == 'input'">
+                    <input type="text" v-bind:placeholder="request.input_default" v-model="reply_value" class="input"
+                        @keyup.enter="send()">
                 </div>
             </div>
             <div class="field">
-                <a class="button is-success is-fullwidth" v-on:click="game.send(data_to_send)">
-                    Send as string
-                </a>
-            </div>
-            <div class="field">
-                <a class="button is-success is-fullwidth" v-on:click="game.send_cbor(data_to_send)">
-                    Send as CBOR
+                <a class="button is-success is-fullwidth" v-show="request.type == 'input' || request.type == 'button'"
+                    v-on:click="send()">
+                    {{ request.button }}
                 </a>
             </div>
         </div>

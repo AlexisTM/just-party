@@ -3,6 +3,7 @@ import { defineComponent } from 'vue';
 import router from '../../router';
 import Game from '../../libs/game';
 import { decode } from 'cborg';
+import type CadavreRequest from './comm';
 
 export default defineComponent({
     data() {
@@ -12,8 +13,16 @@ export default defineComponent({
             max_players: 8,
             accept_players: false,
             data_dest: "[]",
-            data_to_send: '{"Hey": "oooh"}',
+            data_to_send: '{"id": 1}',
             game: new Game(),
+            request: {
+                id: 0,
+                prompt: 'Choose a username',
+                type: 'input',
+                input_default: 'Someone good',
+                button: 'Send',
+            } as CadavreRequest,
+
         }
     },
     mounted() {
@@ -44,6 +53,9 @@ export default defineComponent({
     },
     methods: {
         stop() { this.game.stop(); },
+        send() {
+            this.game.to_str(JSON.parse(this.data_dest), JSON.stringify(this.request))
+        }
     }
 })
 </script>
@@ -58,9 +70,6 @@ export default defineComponent({
                 <label class="label">Max players</label>
                 <div class="control has-icons-left">
                     <input type="text" placeholder="8" v-model="max_players" class="input">
-                    <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                    </span>
                 </div>
             </div>
             <a class="field button is-success is-fullwidth" v-on:click="game.prepare(max_players, 'cadvrs')">
@@ -73,31 +82,38 @@ export default defineComponent({
                 <label class="label">To: </label>
                 <div class="control has-icons-left">
                     <input type="text" placeholder="[]" v-model="data_dest" class="input">
-                    <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                    </span>
+                </div>
+            </div>
+            <div class="field select is-fullwidth">
+                <select v-model="request.type">
+                    <option value="input">Input</option>
+                    <option value="button">Button</option>
+                    <option value="">Idle</option>
+                </select>
+            </div>
+            <div class="field">
+                <label class="label">Prompt:</label>
+                <div class="control has-icons-left">
+                    <input type="text" v-model="request.prompt" class="input">
                 </div>
             </div>
             <div class="field">
-                <label class="label">Input str:</label>
+                <label class="label">Input placeholder:</label>
                 <div class="control has-icons-left">
-                    <input type="text" placeholder="{'some': 'data'}" v-model="data_to_send" class="input"
-                        @keyup.enter="game.to_str(JSON.parse(data_dest), data_to_send)">
-                    <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                    </span>
+                    <input type="text" v-model="request.input_default" class="input">
                 </div>
             </div>
-            <a class="field button is-success is-fullwidth"
-                v-on:click="game.to_str(JSON.parse(data_dest), data_to_send)">
-                Send as String
-            </a>
-            <a class="field button is-success is-fullwidth"
-                v-on:click="game.to_cbor(JSON.parse(data_dest), data_to_send)">
-                Send as CBOR
+            <div class="field">
+                <label class="label">Button text:</label>
+                <div class="control has-icons-left">
+                    <input type="text" v-model="request.button" class="input">
+                </div>
+            </div>
+            <a class="field button is-success is-fullwidth" v-on:click="send()">
+                Send the request
             </a>
             <a class="field button is-success is-fullwidth" v-on:click="stop()">
-                Stop
+                End the game
             </a>
         </div>
     </div>

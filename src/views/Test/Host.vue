@@ -58,9 +58,6 @@ export default defineComponent({
                 <label class="label">Max players</label>
                 <div class="control has-icons-left">
                     <input type="text" placeholder="8" v-model="max_players" class="input">
-                    <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                    </span>
                 </div>
             </div>
             <a class="field button is-success is-fullwidth" v-on:click="game.prepare(max_players, 'test')">
@@ -73,9 +70,6 @@ export default defineComponent({
                 <label class="label">To: </label>
                 <div class="control has-icons-left">
                     <input type="text" placeholder="[]" v-model="data_dest" class="input">
-                    <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                    </span>
                 </div>
             </div>
             <div class="field">
@@ -83,9 +77,6 @@ export default defineComponent({
                 <div class="control has-icons-left">
                     <input type="text" placeholder="{'some': 'data'}" v-model="data_to_send" class="input"
                         @keyup.enter="game.to_str(JSON.parse(data_dest), data_to_send)">
-                    <span class="icon is-small is-left">
-                        <i class="fa fa-envelope"></i>
-                    </span>
                 </div>
             </div>
             <a class="field button is-success is-fullwidth"
