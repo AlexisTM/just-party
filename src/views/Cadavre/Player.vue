@@ -3,9 +3,7 @@ import { defineComponent } from 'vue';
 import router from '../../router';
 import Game from '../../libs/game';
 import { decode } from 'cborg';
-import type CadavreRequest from './comm';
-import type CadavreReponse from './comm';
-import type RequestType from './comm';
+import type { CadavreRequest, CadavreResponse, RequestType } from './comm';
 
 export default defineComponent({
     data() {
@@ -41,7 +39,7 @@ export default defineComponent({
     },
     methods: {
         send() {
-            let res: CadavreReponse = {
+            let res: CadavreResponse = {
                 id: this.request.id,
                 value: this.reply_value,
             };

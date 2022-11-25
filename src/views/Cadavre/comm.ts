@@ -1,6 +1,6 @@
 export type RequestType = 'button' | 'input' | '';
 
-export default interface CadavreRequest {
+export interface CadavreRequest {
   id: Number;
   prompt: string;
   type: RequestType;
@@ -8,7 +8,7 @@ export default interface CadavreRequest {
   button: string;
 }
 
-export default interface CadavreResponse {
+export interface CadavreResponse {
   id: Number;
   value?: string;
 }
