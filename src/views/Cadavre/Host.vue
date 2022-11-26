@@ -316,7 +316,7 @@ export default defineComponent({
                     break;
                 }
                 case GameState.RoundShow: {
-                    // const all_data = (<any>Object).values(this.game_data.rounds[this.game_data.current_round].data) as Array<PlayerRoundData>;
+
                     break;
                 }
                 case GameState.MiddleScore: {
@@ -353,49 +353,6 @@ export default defineComponent({
             </div>
             <a class="field button is-success is-fullwidth" v-on:click="game.prepare(max_players, 'cadvrs')">
                 Prepare
-            </a>
-            <a class="field button is-success is-fullwidth" v-on:click="start()">
-                Start
-            </a>
-            <div class="field">
-                <label class="label">To: </label>
-                <div class="control">
-                    <input type="text" placeholder="[]" v-model="data_dest" class="input">
-                </div>
-            </div>
-            <div class="field select is-fullwidth">
-                <select v-model="request.type">
-                    <option value="input">Input</option>
-                    <option value="button">Button</option>
-                    <option value="">Idle</option>
-                </select>
-            </div>
-            <div class="field">
-                <label class="label">Request ID:</label>
-                <div class="control">
-                    <input type="number" v-model="request.id" class="input">
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">Prompt:</label>
-                <div class="control">
-                    <input type="text" v-model="request.prompt" class="input">
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">Input placeholder:</label>
-                <div class="control">
-                    <input type="text" v-model="request.input_default" class="input">
-                </div>
-            </div>
-            <div class="field">
-                <label class="label">Button text:</label>
-                <div class="control">
-                    <input type="text" v-model="request.button" class="input">
-                </div>
-            </div>
-            <a class="field button is-success is-fullwidth" v-on:click="send_test()">
-                Send the request
             </a>
             <a class="field button is-success is-fullwidth" v-on:click="stop()">
                 End the game
