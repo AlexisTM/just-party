@@ -55,7 +55,7 @@ export default defineComponent({
         <div class="box">
             <div class="field">
                 <label class="label">{{ request.prompt }}</label>
-                <div class="control has-icons-left" v-show="request.type == 'input'">
+                <div class="control" v-show="request.type == 'input'">
                     <input type="text" v-bind:placeholder="request.input_default" v-model="reply_value" class="input"
                         @keyup.enter="send()">
                 </div>

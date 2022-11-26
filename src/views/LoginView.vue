@@ -65,7 +65,7 @@ export default defineComponent({
       <div v-show="(tab == 'join')">
         <div class="field">
           <label for="" class="label">Room ID</label>
-          <div class="control has-icons-left">
+          <div class="control">
             <input type="text" placeholder="XYEX" v-model="roomid" class="input" @keyup.enter="join()"
               @input="gametype_fetcher">
             <span class="icon is-small is-left">

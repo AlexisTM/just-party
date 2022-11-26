@@ -86,6 +86,7 @@ export default defineComponent({
         }
     },
     mounted() {
+        // Websocket triggers
         this.game.on_prepare_reply = (data: any) => {
             this.roomid = data.key;
         };
@@ -111,6 +112,7 @@ export default defineComponent({
                     break;
                 }
                 case ResponseType.VIPStart: {
+                    this.game.start(); // Prevent more people to join
                     this.game_data.state = GameState.PrepareRound;
                     break;
                 }
@@ -163,6 +165,10 @@ export default defineComponent({
             } as PlayerData;
             this.send_username_request([player]);
             // If this wasn't the vip, cancel the ready button
+        }
+        this.game.on_player_left = (data: any) => {
+            const player = data.player as number;
+            delete this.players_data[player];
         }
 
         if (!this.game.create()) {
@@ -236,7 +242,7 @@ export default defineComponent({
                 this.players_data[new_vip.player].vip = true;
                 return this.players_data[new_vip.player];
             } else {
-                return vip.player;
+                return vip;
             }
         },
         stop() { this.game.stop(); },
@@ -253,26 +259,22 @@ export default defineComponent({
             switch (this.game_data.state) {
                 case GameState.PreparingGame: {
                     let vip = this.get_vip() as PlayerData;
-                    console.log(vip)
                     if (vip != undefined) {
                         if (this.all_players_have_username()) {
                             this.send_vip_start_request([vip.player]);
-                            console.log("all ready");
                         } else {
                             if (vip.username == "") {
-                                console.log("vip not ready");
-                                this.send_username_request([vip.player]);
+                                // Wait for the vip to send the username
                             } else {
-                                console.log("not all ready");
-                                this.send_idle_request([vip.player], 'Waiting for everybody to be ready.');
+                                this.send_idle_request([vip.player], "Waiting for everybody to be ready.");
                             }
                         }
-                    }
+                    } 8
                     // If there is no vip, nobody is in.
                     break;
                 }
                 case GameState.PrepareRound: {
-                    this.send_game_request([], ResponseType.Subject, "Give me the subject", "A knight");
+                    this.send_game_request([], ResponseType.Subject, "Give me a subject", "A knight");
                     this.game_data.rounds.push({ winner: -1, data: {} });
                     this.game_data.current_round = this.game_data.rounds.length - 1;
                     this.game_data.state = GameState.RoundAsk;
@@ -314,7 +316,7 @@ export default defineComponent({
             <div class="field">Accept more players: {{ accept_players }}</div>
             <div class="field">
                 <label class="label">Max players</label>
-                <div class="control has-icons-left">
+                <div class="control">
                     <input type="text" placeholder="8" v-model="max_players" class="input">
                 </div>
             </div>
@@ -326,7 +328,7 @@ export default defineComponent({
             </a>
             <div class="field">
                 <label class="label">To: </label>
-                <div class="control has-icons-left">
+                <div class="control">
                     <input type="text" placeholder="[]" v-model="data_dest" class="input">
                 </div>
             </div>
@@ -339,25 +341,25 @@ export default defineComponent({
             </div>
             <div class="field">
                 <label class="label">Request ID:</label>
-                <div class="control has-icons-left">
+                <div class="control">
                     <input type="number" v-model="request.id" class="input">
                 </div>
             </div>
             <div class="field">
                 <label class="label">Prompt:</label>
-                <div class="control has-icons-left">
+                <div class="control">
                     <input type="text" v-model="request.prompt" class="input">
                 </div>
             </div>
             <div class="field">
                 <label class="label">Input placeholder:</label>
-                <div class="control has-icons-left">
+                <div class="control">
                     <input type="text" v-model="request.input_default" class="input">
                 </div>
             </div>
             <div class="field">
                 <label class="label">Button text:</label>
-                <div class="control has-icons-left">
+                <div class="control">
                     <input type="text" v-model="request.button" class="input">
                 </div>
             </div>

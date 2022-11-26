@@ -84,6 +84,8 @@ class Game {
                             this.on_state(msg);
                         } else if (msg.cmd == 'player_joined') {
                             this.on_player_joined(msg);
+                        } else if (msg.cmd == 'player_left') {
+                            this.on_player_left(msg);
                         } else {
                             this.on_log('[MESSAGE IN] Unknown message: ' + a.data);
                         }
@@ -204,6 +206,9 @@ class Game {
     }
     on_player_joined(data: any) {
         this.on_log('[PLAYER_JOINED] player: ' + data.player);
+    }
+    on_player_left(data: any) {
+        this.on_log('[PLAYER_LEFT] player: ' + data.player);
     }
 
     // Configuration related

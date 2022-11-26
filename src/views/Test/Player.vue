@@ -39,7 +39,7 @@ export default defineComponent({
         <div class="box">
             <div class="field">
                 <label class="label">Input</label>
-                <div class="control has-icons-left">
+                <div class="control">
                     <input type="text" placeholder="{'some': 'data'}" v-model="data_to_send" class="input"
                         @keyup.enter="game.send(data_to_send)">
                 </div>
