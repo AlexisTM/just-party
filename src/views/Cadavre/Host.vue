@@ -4,6 +4,7 @@ import router from '../../router';
 import Game from '../../libs/game';
 import { decode } from 'cborg';
 import type { CadavreRequest, CadavreResponse, RequestType } from './comm';
+import { all } from 'axios';
 
 
 /// TODOES:
@@ -22,7 +23,7 @@ enum ResponseType {
     Subject,
     Verb,
     SubjectComplement,
-    Adjective,
+    TimeComplement,
 }
 
 enum GameState {
@@ -36,8 +37,10 @@ enum GameState {
 
 interface PlayerRoundData {
     player: number;
-    type: ResponseType;
-    result: string;
+    subject: string;
+    verb: string;
+    complement: string;
+    adjective: string;
 }
 
 interface PlayerRound {
@@ -50,9 +53,10 @@ interface Round {
 }
 
 interface PlayerData {
-    player: number;
-    username: string;
-    vip: boolean;
+    player: number; // Player ID
+    username: string; // Username
+    vip: boolean; // One VIP, the "owner" of the room
+    done: boolean; // Current task is done
 }
 
 interface Players {
@@ -63,7 +67,7 @@ export default defineComponent({
     data() {
         return {
             roomid: '',
-            players: [],
+            players: [] as Array<number>,
             max_players: 8,
             accept_players: false, // Information from the main server
             data_dest: "[]", //
@@ -102,6 +106,7 @@ export default defineComponent({
                         player: player,
                         username: player_data,
                         vip: false,
+                        done: false,
                     } as PlayerData;
 
                     if (this.players_data[player].username != "") { // If we have a name, make it wait to start;
@@ -128,15 +133,25 @@ export default defineComponent({
                     // Nothing should come in.
                     break;
                 }
-                case ResponseType.Subject:
-                case ResponseType.SubjectComplement:
-                case ResponseType.Verb:
-                case ResponseType.Adjective: {
-                    this.game_data.rounds[this.game_data.current_round].data[player] = {
-                        player: data.from,
-                        type: player_response_type,
-                        result: player_data,
-                    } as PlayerRoundData;
+                case ResponseType.Subject: {
+                    this.game_data.rounds[this.game_data.current_round].data[player].subject = player_data;
+                    this.send_game_request([player], ResponseType.Verb, "Give me a verb", "eats");
+                    break;
+                }
+                case ResponseType.Verb: {
+                    this.game_data.rounds[this.game_data.current_round].data[player].verb = player_data;
+                    this.send_game_request([player], ResponseType.SubjectComplement, "Give me a complement", "an apple");
+                    break;
+                }
+                case ResponseType.SubjectComplement: {
+                    this.game_data.rounds[this.game_data.current_round].data[player].complement = player_data;
+                    this.send_game_request([player], ResponseType.TimeComplement, "Give time complement", "in summer");
+                    break;
+                }
+                case ResponseType.TimeComplement: {
+                    this.game_data.rounds[this.game_data.current_round].data[player].adjective = player_data;
+                    this.send_idle_request([player], "Waiting for the other players..");
+                    this.players_data[player].done = true;
                     break;
                 }
             };
@@ -162,6 +177,7 @@ export default defineComponent({
                 player: player,
                 username: "",
                 vip: (this.get_vip() == undefined), // True if no vip
+                done: false,
             } as PlayerData;
             this.send_username_request([player]);
             // If this wasn't the vip, cancel the ready button
@@ -176,6 +192,7 @@ export default defineComponent({
         }
         this.game_data.state = GameState.PreparingGame;
 
+        console.log("MOUNTED")
         if (this.timer_s == 0) {
             this.timer_s = setInterval(this.update, 1000);
         }
@@ -278,14 +295,28 @@ export default defineComponent({
                     this.game_data.rounds.push({ winner: -1, data: {} });
                     this.game_data.current_round = this.game_data.rounds.length - 1;
                     this.game_data.state = GameState.RoundAsk;
+
+                    for (let player of this.players) {
+                        this.players_data[player].done = false;
+                        this.game_data.rounds[this.game_data.current_round].data[player] = {
+                            player: player,
+                            subject: '',
+                            verb: '',
+                            complement: '',
+                            adjective: '',
+                        } as PlayerRoundData;
+                    }
                     break;
                 }
                 case GameState.RoundAsk: {
-                    // If all in, got to next
+                    const not_done_player = (<any>Object).values(this.players_data).find((data: PlayerData) => (data.done == false));
+                    if (not_done_player == undefined) {
+                        this.game_data.state = GameState.RoundShow;
+                    }
                     break;
                 }
                 case GameState.RoundShow: {
-                    // Show results!
+                    // const all_data = (<any>Object).values(this.game_data.rounds[this.game_data.current_round].data) as Array<PlayerRoundData>;
                     break;
                 }
                 case GameState.MiddleScore: {

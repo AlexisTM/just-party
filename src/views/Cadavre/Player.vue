@@ -44,7 +44,13 @@ export default defineComponent({
                 id: this.request.id,
                 value: this.reply_value,
             };
-            this.game.send(JSON.stringify(res));
+            if(this.request.type == 'input') {
+                if(this.reply_value.length > 0) { // Possible parameter, min_chars
+                    this.game.send(JSON.stringify(res));
+                }
+            } else {
+                this.game.send(JSON.stringify(res));
+            }
         },
     }
 })
