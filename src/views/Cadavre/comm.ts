@@ -10,5 +10,5 @@ export interface CadavreRequest {
 
 export interface CadavreResponse {
   id: Number;
-  value?: string;
+  value: string;
 }
