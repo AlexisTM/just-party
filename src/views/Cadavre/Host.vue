@@ -155,7 +155,7 @@ export default defineComponent({
                     break;
                 }
                 case ResponseType.VIPRestart: {
-
+                    this.game_data.state = GameState.PrepareRound;
                     break;
                 }
                 case ResponseType.VIPReplay: {
@@ -335,7 +335,6 @@ export default defineComponent({
                     break;
                 }
                 case GameState.PrepareRound: {
-                    this.send_game_request([], ResponseType.Subject, "Give me a subject", "A knight");
                     this.game_data.rounds.push({ winner: -1, data: {}, results: [] });
                     this.game_data.current_round = this.game_data.rounds.length - 1;
                     this.game_data.state = GameState.RoundAsk;
@@ -350,6 +349,7 @@ export default defineComponent({
                             time_complement: '',
                         } as PlayerRoundData;
                     }
+                    this.send_game_request([], ResponseType.Subject, "Give me a subject", "A knight");
                     break;
                 }
                 case GameState.RoundAsk: {
@@ -450,7 +450,7 @@ export default defineComponent({
                 complement,
                 time_complement
             } in game_data.rounds[game_data.current_round].results" class="field">
-                {{ subject.value }} {{ time_complement.value }} {{ verb.value }} {{ complement.value }}
+                {{ subject.value }} {{ verb.value }} {{ complement.value }} {{ time_complement.value }}
             </div>
         </div>
     </div>
