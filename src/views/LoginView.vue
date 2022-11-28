@@ -4,7 +4,7 @@ import router from '../router';
 import axios from 'axios'
 
 type LoginTab = 'join' | 'create';
-type GameList = '' | 'test' | 'cadvrs';
+type GameList = '' | 'test' | 'cadvrs' | 'cadvrd';
 
 export default defineComponent({
   data() {
@@ -17,13 +17,14 @@ export default defineComponent({
       game_names: {
         'test': 'Test mode',
         'cadvrs': 'Cadavre Exquis (string mode)',
+        'cadvrd': 'Cadavre Exquis (Drawing mode)',
       }
     }
   },
   methods: {
     join() {
       if (this.can_join) {
-        router.push(`/${this.game_to_join}/player/${this.roomid}`);
+        router.push(`/${this.game_to_join}/player/${this.roomid.toUpperCase()}`);
       }
     },
     create() {
@@ -33,7 +34,7 @@ export default defineComponent({
       if (this.roomid.length == 4) {
         this.can_join = false;
         this.game_to_join = ''
-        axios.get(`http://127.0.0.1:8081/${this.roomid}`).then((resp) => {
+        axios.get(`http://${window.location.hostname}:8081/${this.roomid.toUpperCase()}`).then((resp) => {
           this.game_to_join = resp.data;
           this.can_join = true;
         }).catch(
@@ -86,7 +87,8 @@ export default defineComponent({
         <div class="field select is-fullwidth">
           <select v-model="game_to_start">
             <option value="test">Test</option>
-            <option value="cadvrs">Cadavre exquis [Écris]</option>
+            <option value="cadvrs">Cadavre exquis [Written]</option>
+            <option value="cadvrd">Cadavre exquis [Drawn]</option>
           </select>
         </div>
         <div class="field">

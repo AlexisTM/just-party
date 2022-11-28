@@ -4,6 +4,8 @@ import TestHost from '../views/Test/Host.vue'
 import TestPlayer from '../views/Test/Player.vue'
 import CadavreHost from '../views/Cadavre/Host.vue'
 import CadavrePlayer from '../views/Cadavre/Player.vue'
+import CadavreDrawHost from '../views/CadavreDraw/Host.vue'
+import CadavreDrawPlayer from '../views/CadavreDraw/Player.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +34,16 @@ const router = createRouter({
       path: '/cadvrs/player/:roomid',
       name: 'Cadavre Exquis player',
       component: CadavrePlayer,
+    },
+    {
+      path: '/cadvrd/host',
+      name: 'Draw Cadavre Exquis host',
+      component: CadavreDrawHost,
+    },
+    {
+      path: '/cadvrd/player/:roomid',
+      name: 'Draw Cadavre Exquis player',
+      component: CadavreDrawPlayer,
     }
   ]
 })

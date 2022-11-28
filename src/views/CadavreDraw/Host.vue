@@ -6,6 +6,7 @@ import { decode } from 'cborg';
 import type { CadavreRequest, CadavreResponse, RequestType } from './comm';
 import { all } from 'axios';
 
+
 interface Scores {
     [key: number]: number
 }
@@ -432,7 +433,7 @@ export default defineComponent({
                     <input type="text" placeholder="8" v-model="max_players" class="input">
                 </div>
             </div>
-            <a class="field button is-success is-fullwidth" v-on:click="game.prepare(max_players, 'cadvrs')">
+            <a class="field button is-success is-fullwidth" v-on:click="game.prepare(max_players, 'cadvrd')">
                 Prepare
             </a>
             <a class="field button is-success is-fullwidth" v-on:click="stop()">

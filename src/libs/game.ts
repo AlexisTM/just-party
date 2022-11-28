@@ -61,7 +61,7 @@ class Game {
                 } else {
                     this.on_log('[CONNCETING] Joining the game: ' + game);
                 }
-                this.ws = new WebSocket('ws://127.0.0.1:8081/' + game);
+                this.ws = new WebSocket(`ws://${window.location.hostname}:8081/` + game);
                 this.ws.binaryType = 'arraybuffer';
                 this.ws.onclose = (a) => { this.on_ws_close(a); this.on_log('[CLOSED] Code: ' + a.code + ' Reason: \"' + a.reason + '\"'); }
                 this.ws.onerror = (a) => { this.on_log('[ERROR]'); }
