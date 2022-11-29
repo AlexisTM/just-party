@@ -7,7 +7,7 @@ type LoginTab = 'join' | 'create';
 type GameList = '' | 'test' | 'cadvrs' | 'cadvrd';
 
 interface GameListNames {
-    [key: string]: string
+  [key: string]: string
 }
 
 export default defineComponent({
@@ -37,8 +37,16 @@ export default defineComponent({
     gametype_fetcher() {
       if (this.roomid.length == 4) {
         this.can_join = false;
-        this.game_to_join = ''
-        axios.get(`http://${window.location.hostname}:8081/${this.roomid.toUpperCase()}`).then((resp) => {
+        this.game_to_join = '';
+        let url = import.meta.env.VITE_URL as string;
+        if (url == undefined) {
+          url = window.location.hostname + ':8081';
+        }
+        let protocol = import.meta.env.VITE_PROTOCOL_HTTP as string;
+        if (protocol == undefined) {
+          protocol = "http";
+        }
+        axios.get(`${protocol}://${url}/${this.roomid.toUpperCase()}`).then((resp) => {
           this.game_to_join = resp.data;
           this.can_join = true;
         }).catch(

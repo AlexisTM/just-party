@@ -61,7 +61,15 @@ class Game {
                 } else {
                     this.on_log('[CONNCETING] Joining the game: ' + game);
                 }
-                this.ws = new WebSocket(`ws://${window.location.hostname}:8081/` + game);
+                let url = import.meta.env.VITE_URL as string;
+                if (url == undefined) {
+                  url = window.location.hostname + ':8081';
+                }
+                let protocol = import.meta.env.VITE_PROTOCOL_WS as string;
+                if (protocol == undefined) {
+                  protocol = "ws";
+                }
+                this.ws = new WebSocket(`${protocol}://${url}/` + game);
                 this.ws.binaryType = 'arraybuffer';
                 this.ws.onclose = (a) => { this.on_ws_close(a); this.on_log('[CLOSED] Code: ' + a.code + ' Reason: \"' + a.reason + '\"'); }
                 this.ws.onerror = (a) => { this.on_log('[ERROR]'); }
