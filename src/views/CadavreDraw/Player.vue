@@ -3,8 +3,12 @@ import { defineComponent } from 'vue';
 import router from '../../router';
 import Game from '../../libs/game';
 import { decode } from 'cborg';
-import type { CadavreRequest, CadavreResponse, RequestType } from './comm';
+import type { CadavreRequest, CadavreResponse, RequestType, Image } from './comm';
 import Sketchpad from 'responsive-sketchpad';
+
+// Alternative sketchpad: https://vuejsexamples.com/create-a-drawing-app-that-uses-vuejs/
+// Test at: https://codepen.io/Lewitje/pen/MVommB
+// Alternative sketchpad: https://theisensanders.com/responsive-sketchpad/
 
 export default defineComponent({
     data() {
@@ -19,7 +23,7 @@ export default defineComponent({
                 button: '',
             } as CadavreRequest,
             reply_value: '',
-            pad: undefined,
+            pad: {} as Partial<Sketchpad>,
         }
     },
     mounted() {
@@ -60,6 +64,19 @@ export default defineComponent({
                 this.game.send(JSON.stringify(res));
             }
         },
+        pad_undo() {
+            this.pad.undo?.();
+        },
+        pad_redo() {
+            this.pad.redo?.();
+        },
+        pad_clear() {
+            this.pad.clear?.();
+        },
+        pad_get_data() {
+            let size = this.pad.getCanvasSize?.();
+            console.log(this.pad.toJSON?.())
+        }
     }
 })
 </script>
@@ -83,6 +100,18 @@ export default defineComponent({
         </div>
         <div class="box">
             <div id="drawing"></div>
+            <a class="field button is-success is-fullwidth" v-on:click="pad_undo()">
+                undo
+            </a>
+            <a class="field button is-success is-fullwidth" v-on:click="pad_redo()">
+                redo
+            </a>
+            <a class="field button is-success is-fullwidth" v-on:click="pad_clear()">
+                clear
+            </a>
+            <a class="field button is-success is-fullwidth" v-on:click="pad_get_data()">
+                get_data
+            </a>
         </div>
     </div>
 </template>

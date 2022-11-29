@@ -6,6 +6,10 @@ import axios from 'axios'
 type LoginTab = 'join' | 'create';
 type GameList = '' | 'test' | 'cadvrs' | 'cadvrd';
 
+interface GameListNames {
+    [key: string]: string
+}
+
 export default defineComponent({
   data() {
     return {
@@ -18,7 +22,7 @@ export default defineComponent({
         'test': 'Test mode',
         'cadvrs': 'Cadavre Exquis (string mode)',
         'cadvrd': 'Cadavre Exquis (Drawing mode)',
-      }
+      } as GameListNames,
     }
   },
   methods: {

@@ -3,7 +3,7 @@ import { defineComponent } from 'vue';
 import router from '../../router';
 import Game from '../../libs/game';
 import { decode } from 'cborg';
-import type { CadavreRequest, CadavreResponse, RequestType } from './comm';
+import type { CadavreRequest, CadavreResponse, RequestType, Image } from './comm';
 import { all } from 'axios';
 
 
