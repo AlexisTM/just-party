@@ -20,6 +20,9 @@ export default defineComponent({
         this.game.on_prepare_reply = (data: any) => {
             this.roomid = data.key;
         };
+        this.game.on_player_data_bin = (data: any) => {
+            console.log(data);
+        };
         this.game.on_player_data = (data: any) => {
             console.log(data);
         };

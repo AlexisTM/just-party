@@ -221,7 +221,6 @@ export default defineComponent({
         }
         this.game_data.state = GameState.PreparingGame;
 
-        console.log("MOUNTED")
         if (this.timer_s == 0) {
             this.timer_s = setInterval(this.update, 1000);
         }
@@ -369,9 +368,7 @@ export default defineComponent({
                     shuffle_in_place(complement_left);
                     shuffle_in_place(time_complement_left);
 
-                    console.log(subject_left, verb_left, complement_left, time_complement_left)
                     for (let i = 0; i < subject_left.length; i++) {
-                        console.log(i);
                         this.game_data.rounds[this.game_data.current_round].results.push({
                             subject: {
                                 player: this.game_data.rounds[this.game_data.current_round].data[subject_left[i]].player,
@@ -390,7 +387,6 @@ export default defineComponent({
                                 value: this.game_data.rounds[this.game_data.current_round].data[verb_left[i]].verb,
                             },
                         });
-                        console.log(this.game_data.rounds[this.game_data.current_round].results);
                     }
                     this.game_data.state = GameState.RoundShow;
                     this.send_vip_restart_request()

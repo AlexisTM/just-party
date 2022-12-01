@@ -43,7 +43,7 @@ export default defineComponent({
         if (!this.game.join(this.roomid)) {
             router.push('/');
         }
-        this.pad = new Sketchpad( document.getElementById('drawing') as HTMLElement, {
+        this.pad = new Sketchpad(document.getElementById('drawing') as HTMLElement, {
             line: {
                 color: '#f44335',
                 size: 5
@@ -74,9 +74,25 @@ export default defineComponent({
             this.pad.clear?.();
         },
         pad_get_data() {
-            let size = this.pad.getCanvasSize?.();
-            console.log(this.pad.toJSON?.())
+            if (typeof (this.pad.canvas) == "object") {
+                let canvas = this.pad.canvas;
+                let ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+                let image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                let res: CadavreResponse = {
+                    id: this.request.id,
+                    value: this.reply_value,
+                    image: {
+                        data: new Uint8Array(image.data),
+                        width: image.width,
+                        height: image.height,
+                    },
+                };
+                this.game.send_cbor(res);
+            } else {
+                console.log("No canvas is available it seems");
+            }
         }
+
     }
 })
 </script>

@@ -3,9 +3,8 @@ import { defineComponent } from 'vue';
 import router from '../../router';
 import Game from '../../libs/game';
 import { decode } from 'cborg';
-import type { CadavreRequest, CadavreResponse, RequestType, Image } from './comm';
+import type { CadavreRequest, CadavreResponse, RequestType } from './comm';
 import { all } from 'axios';
-
 
 interface Scores {
     [key: number]: number
@@ -124,11 +123,68 @@ export default defineComponent({
         this.game.on_prepare_reply = (data: any) => {
             this.roomid = data.key;
         };
+        this.game.on_player_data_bin = (data: any) => {
+            this.handle_user_data(data.from, decode(new Uint8Array(data.data)));
+        };
         this.game.on_player_data = (data: any) => {
-            const player = data.from;
-            const player_reply = JSON.parse(data.data) as CadavreResponse;
+            this.handle_user_data(data.from, JSON.parse(data.data));
+        };
+        this.game.on_stop = (data: any) => {
+            console.log(data);
+        };
+        this.game.on_error = (data: any) => {
+            console.log(data);
+        };
+        this.game.on_state = (data: any) => {
+            this.accept_players = data.accept_conns;
+            this.players = data.players;
+            console.log(data);
+        };
+        this.game.on_ws_close = (data: any) => {
+            console.log(data);
+            router.push('/');
+        }
+        this.game.on_player_joined = (data: any) => {
+            const player = data.player as number;
+            this.players_data[player] = {
+                player: player,
+                username: "",
+                vip: (this.get_vip() == undefined), // True if no vip
+                done: false,
+            } as PlayerData;
+            this.send_username_request([player]);
+            // If this wasn't the vip, cancel the ready button
+        }
+        this.game.on_player_left = (data: any) => {
+            const player = data.player as number;
+            delete this.players_data[player];
+        }
+
+        if (!this.game.create()) {
+            router.push('/');
+        }
+        this.game_data.state = GameState.PreparingGame;
+
+        console.log("MOUNTED")
+        if (this.timer_s == 0) {
+            this.timer_s = setInterval(this.update, 1000);
+        }
+    },
+    unmounted() {
+        if (this.timer_s != 0) {
+            clearInterval(this.timer_s);
+            this.timer_s = 0;
+        }
+    },
+    methods: {
+        handle_user_data(player: number, player_reply: CadavreResponse) {
             const player_response_type = player_reply.id as ResponseType;
             const player_data = player_reply.value;
+
+            if(typeof(player_reply.image) == 'object') {
+                console.log(player_reply.image.data);
+                console.log(new Uint8Array(player_reply.image.data));
+            }
 
             switch (player_response_type) {
                 case ResponseType.Username: {
@@ -185,55 +241,7 @@ export default defineComponent({
                     break;
                 }
             };
-        };
-        this.game.on_stop = (data: any) => {
-            console.log(data);
-        };
-        this.game.on_error = (data: any) => {
-            console.log(data);
-        };
-        this.game.on_state = (data: any) => {
-            this.accept_players = data.accept_conns;
-            this.players = data.players;
-            console.log(data);
-        };
-        this.game.on_ws_close = (data: any) => {
-            console.log(data);
-            router.push('/');
-        }
-        this.game.on_player_joined = (data: any) => {
-            const player = data.player as number;
-            this.players_data[player] = {
-                player: player,
-                username: "",
-                vip: (this.get_vip() == undefined), // True if no vip
-                done: false,
-            } as PlayerData;
-            this.send_username_request([player]);
-            // If this wasn't the vip, cancel the ready button
-        }
-        this.game.on_player_left = (data: any) => {
-            const player = data.player as number;
-            delete this.players_data[player];
-        }
-
-        if (!this.game.create()) {
-            router.push('/');
-        }
-        this.game_data.state = GameState.PreparingGame;
-
-        console.log("MOUNTED")
-        if (this.timer_s == 0) {
-            this.timer_s = setInterval(this.update, 1000);
-        }
-    },
-    unmounted() {
-        if (this.timer_s != 0) {
-            clearInterval(this.timer_s);
-            this.timer_s = 0;
-        }
-    },
-    methods: {
+        },
         send(dest: Array<number>, request: CadavreRequest) {
             this.game.to_str(dest, JSON.stringify(request));
         },
@@ -370,9 +378,7 @@ export default defineComponent({
                     shuffle_in_place(complement_left);
                     shuffle_in_place(time_complement_left);
 
-                    console.log(subject_left, verb_left, complement_left, time_complement_left)
                     for (let i = 0; i < subject_left.length; i++) {
-                        console.log(i);
                         this.game_data.rounds[this.game_data.current_round].results.push({
                             subject: {
                                 player: this.game_data.rounds[this.game_data.current_round].data[subject_left[i]].player,
@@ -391,7 +397,6 @@ export default defineComponent({
                                 value: this.game_data.rounds[this.game_data.current_round].data[verb_left[i]].verb,
                             },
                         });
-                        console.log(this.game_data.rounds[this.game_data.current_round].results);
                     }
                     this.game_data.state = GameState.RoundShow;
                     this.send_vip_restart_request()

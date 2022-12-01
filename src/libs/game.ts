@@ -81,7 +81,7 @@ class Game {
                         if (msg.cmd == 'prepare_reply') {
                             this.on_prepare_reply(msg);
                         } else if (msg.cmd == 'from') {
-                            this.on_player_data(msg);
+                            this.on_player_data_bin(msg);
                         } else if (msg.cmd == 'from_str') {
                             this.on_player_data(msg);
                         } else if (msg.cmd == 'stop') {
@@ -201,6 +201,9 @@ class Game {
         this.on_log('[PREPARE_REPLY] Game key: ' + data.key);
     }
     on_player_data(data: any) {
+        this.on_log('[PLAYER_DATA] ' + data.from + ' sent: ' + data.data);
+    }
+    on_player_data_bin(data: any) {
         this.on_log('[PLAYER_DATA] ' + data.from + ' sent: ' + data.data);
     }
     on_stop(data: any) {

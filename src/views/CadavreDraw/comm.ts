@@ -3,8 +3,7 @@ export type RequestType = 'button' | 'input' | 'draw' | 'show_drawing' | '';
 export interface Image {
   width: number,
   height: number,
-  channels: number;
-  data: ArrayBuffer;
+  data: Uint8Array;
 }
 
 export interface CadavreRequest {
