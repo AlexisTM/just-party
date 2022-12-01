@@ -20,6 +20,7 @@ enum ResponseType {
     Verb,
     SubjectComplement,
     TimeComplement,
+    Result,
 }
 
 enum GameState {
@@ -105,6 +106,7 @@ export default defineComponent({
                 type: 'input',
                 input_default: 'Someone good',
                 button: 'Send',
+                value: [],
             } as CadavreRequest,
             timer_s: 0,
             players_data: {} as Players,
@@ -242,6 +244,7 @@ export default defineComponent({
                 type: '',
                 input_default: '',
                 button: '',
+                value: [],
             });
         },
         send_username_request(dest: Array<number>) {
@@ -251,6 +254,7 @@ export default defineComponent({
                 type: 'input',
                 input_default: 'John Smith',
                 button: 'Set my name',
+                value: [],
             });
         },
         send_vip_start_request() {
@@ -261,6 +265,7 @@ export default defineComponent({
                 type: 'button',
                 input_default: 'start',
                 button: 'Everybody is in',
+                value: [],
             });
         },
         send_vip_restart_request() {
@@ -271,6 +276,7 @@ export default defineComponent({
                 type: 'button',
                 input_default: 'restart',
                 button: 'Restart',
+                value: [],
             });
         },
         send_game_request(dest: Array<number>, type: ResponseType, prompt: string, input_default: string) {
@@ -280,6 +286,17 @@ export default defineComponent({
                 type: 'input',
                 input_default: input_default,
                 button: 'Send',
+                value: [],
+            });
+        },
+        send_game_result(result: Array<string>) {
+            this.send([], {
+                id: ResponseType.Result,
+                prompt: 'Here are the results!',
+                type: 'output',
+                input_default: '',
+                button: '',
+                value: result,
             });
         },
         all_players_have_username(): boolean {
@@ -390,6 +407,12 @@ export default defineComponent({
                     }
                     this.game_data.state = GameState.RoundShow;
                     this.send_vip_restart_request()
+                    let result = [];
+                    let results_data = this.game_data.rounds[this.game_data.current_round].results;
+                    for (let i = 0; i < results_data.length; i++) {
+                        result.push(`${results_data[i].subject.value} ${results_data[i].verb.value} ${results_data[i].complement.value} ${results_data[i].time_complement.value}`)
+                    }
+                    this.send_game_result(result);
                     break;
                 }
                 case GameState.RoundShow: {

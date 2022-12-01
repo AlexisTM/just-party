@@ -16,6 +16,7 @@ export default defineComponent({
                 type: '',
                 input_default: '',
                 button: '',
+                value: [],
             } as CadavreRequest,
             reply_value: '',
         }
@@ -71,6 +72,11 @@ export default defineComponent({
                     v-on:click="send()">
                     {{ request.button }}
                 </a>
+            </div>
+            <div v-if="request.type == 'output'">
+                <div class="field" v-for="value in (request.value)">
+                    {{ value }}
+                </div>
             </div>
         </div>
     </div>
