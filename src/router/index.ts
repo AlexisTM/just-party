@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import TestHost from '../views/Test/Host.vue'
 import TestPlayer from '../views/Test/Player.vue'
@@ -8,7 +8,7 @@ import CadavreDrawHost from '../views/CadavreDraw/Host.vue'
 import CadavreDrawPlayer from '../views/CadavreDraw/Player.vue'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
