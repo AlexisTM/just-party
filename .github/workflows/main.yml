@@ -23,7 +23,7 @@ jobs:
 
       - name: Build the app
         run: |
-          yarn clean
+          rm -rf ./dist
           yarn build
       - name: Deploy! 🚀 (I hope I didn't break it though)
         uses: peaceiris/actions-gh-pages@v3
