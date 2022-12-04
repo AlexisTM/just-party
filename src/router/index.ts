@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
+import CheckServiceView from '../views/CheckServiceView.vue'
 import TestHost from '../views/Test/Host.vue'
 import TestPlayer from '../views/Test/Player.vue'
 import CadavreHost from '../views/Cadavre/Host.vue'
@@ -13,6 +14,11 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
+      component: CheckServiceView
+    },
+    {
+      path: '/login',
+      name: 'login',
       component: LoginView
     },
     {

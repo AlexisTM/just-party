@@ -38,7 +38,7 @@ export default defineComponent({
       if (this.roomid.length == 4) {
         this.can_join = false;
         this.game_to_join = '';
-        let url = import.meta.env.VITE_URL as string;
+        let url = import.meta.env.VITE_PROXY_URL as string;
         if (url == undefined) {
           url = window.location.hostname + ':8081';
         }
