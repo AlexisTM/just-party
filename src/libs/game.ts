@@ -61,7 +61,7 @@ class Game {
                 } else {
                     this.on_log('[CONNCETING] Joining the game: ' + game);
                 }
-                let url = import.meta.env.VITE_URL as string;
+                let url = import.meta.env.VITE_PROXY_URL as string;
                 if (url == undefined) {
                   url = window.location.hostname + ':8081';
                 }
