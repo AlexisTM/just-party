@@ -3,7 +3,7 @@ import { defineComponent } from 'vue';
 import router from '../../router';
 import Game from '../../libs/game';
 import { decode } from 'cborg';
-import type { CadavreRequest, CadavreResponse, RequestType } from './comm';
+import type { CadavreRequest, CadavreResponse, ColoredResult } from './comm';
 
 export default defineComponent({
     data() {
@@ -75,7 +75,10 @@ export default defineComponent({
             </div>
             <div v-if="request.type == 'output'">
                 <div class="field" v-for="value in (request.value)">
-                    {{ value }}
+                    <span class="has-text-weight-semibold" v-bind:class="value.subject.class">{{value.subject.value}} &nbsp;</span>
+                    <span class="has-text-weight-semibold" v-bind:class="value.verb.class">{{value.verb.value}} &nbsp;</span>
+                    <span class="has-text-weight-semibold" v-bind:class="value.complement.class">{{value.complement.value}} &nbsp;</span>
+                    <span class="has-text-weight-semibold" v-bind:class="value.time_complement.class">{{value.time_complement.value}} &nbsp;</span>
                 </div>
             </div>
         </div>

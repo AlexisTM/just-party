@@ -3,7 +3,7 @@ import { defineComponent } from 'vue';
 import router from '../../router';
 import Game from '../../libs/game';
 import { decode } from 'cborg';
-import type { CadavreRequest, CadavreResponse, RequestType } from './comm';
+import type { CadavreRequest, CadavreResponse, ColoredResult } from './comm';
 import { all } from 'axios';
 
 interface Scores {
@@ -33,25 +33,6 @@ enum GameState {
     FinalScores,
 }
 
-interface Result {
-    subject: {
-        player: number;
-        value: string;
-    };
-    verb: {
-        player: number;
-        value: string;
-    };
-    complement: {
-        player: number;
-        value: string;
-    };
-    time_complement: {
-        player: number;
-        value: string;
-    };
-}
-
 interface PlayerRoundData {
     player: number;
     subject: string;
@@ -67,7 +48,7 @@ interface PlayerRound {
 interface Round {
     winner: number;
     data: PlayerRound;
-    results: Array<Result>;
+    results: Array<ColoredResult>;
 }
 
 interface PlayerData {
@@ -75,6 +56,7 @@ interface PlayerData {
     username: string; // Username
     vip: boolean; // One VIP, the "owner" of the room
     done: boolean; // Current task is done
+    class: string;
 }
 
 interface Players {
@@ -90,6 +72,20 @@ const shuffle_in_place = (array: any[]) => {
     }
 }
 
+const COLORS = [
+    'has-text-info',
+    'has-text-success',
+    'has-text-warning',
+    'has-text-danger',
+    'has-text-info-dark',
+    'has-text-success-dark',
+    'has-text-warning-dark',
+    'has-text-danger-dark',
+    'has-text-primary',
+    'has-text-link',
+    'has-text-primary-dark',
+    'has-text-link-dark',
+];
 
 export default defineComponent({
     data() {
@@ -118,6 +114,7 @@ export default defineComponent({
                 current_round: 0,
             },
             GameState: GameState,
+            current_color: 0,
         }
     },
     mounted() {
@@ -138,7 +135,9 @@ export default defineComponent({
                         username: player_data,
                         vip: false,
                         done: false,
+                        class: COLORS[this.current_color],
                     } as PlayerData;
+                    this.current_color += 1;
 
                     if (this.players_data[player].username != "") { // If we have a name, make it wait to start;
                         this.send_idle_request([player], 'Waiting for the game to start');
@@ -209,6 +208,7 @@ export default defineComponent({
                 username: "",
                 vip: (this.get_vip() == undefined), // True if no vip
                 done: false,
+                class: COLORS[0],
             } as PlayerData;
             this.send_username_request([player]);
             // If this wasn't the vip, cancel the ready button
@@ -289,7 +289,7 @@ export default defineComponent({
                 value: [],
             });
         },
-        send_game_result(result: Array<string>) {
+        send_game_result(result: Array<ColoredResult>) {
             this.send([], {
                 id: ResponseType.Result,
                 prompt: 'Here are the results!',
@@ -388,31 +388,26 @@ export default defineComponent({
                     for (let i = 0; i < subject_left.length; i++) {
                         this.game_data.rounds[this.game_data.current_round].results.push({
                             subject: {
-                                player: this.game_data.rounds[this.game_data.current_round].data[subject_left[i]].player,
+                                class: this.players_data[this.game_data.rounds[this.game_data.current_round].data[subject_left[i]].player].class,
                                 value: this.game_data.rounds[this.game_data.current_round].data[subject_left[i]].subject,
                             },
                             time_complement: {
-                                player: this.game_data.rounds[this.game_data.current_round].data[time_complement_left[i]].player,
+                                class: this.players_data[this.game_data.rounds[this.game_data.current_round].data[time_complement_left[i]].player].class,
                                 value: this.game_data.rounds[this.game_data.current_round].data[time_complement_left[i]].time_complement,
                             },
                             complement: {
-                                player: this.game_data.rounds[this.game_data.current_round].data[complement_left[i]].player,
+                                class: this.players_data[this.game_data.rounds[this.game_data.current_round].data[complement_left[i]].player].class,
                                 value: this.game_data.rounds[this.game_data.current_round].data[complement_left[i]].complement,
                             },
                             verb: {
-                                player: this.game_data.rounds[this.game_data.current_round].data[verb_left[i]].player,
+                                class: this.players_data[this.game_data.rounds[this.game_data.current_round].data[verb_left[i]].player].class,
                                 value: this.game_data.rounds[this.game_data.current_round].data[verb_left[i]].verb,
                             },
                         });
                     }
                     this.game_data.state = GameState.RoundShow;
                     this.send_vip_restart_request()
-                    let result = [];
-                    let results_data = this.game_data.rounds[this.game_data.current_round].results;
-                    for (let i = 0; i < results_data.length; i++) {
-                        result.push(`${results_data[i].subject.value} ${results_data[i].verb.value} ${results_data[i].complement.value} ${results_data[i].time_complement.value}`)
-                    }
-                    this.send_game_result(result);
+                    this.send_game_result(this.game_data.rounds[this.game_data.current_round].results);
                     break;
                 }
                 case GameState.RoundShow: {
