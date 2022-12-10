@@ -279,6 +279,7 @@ export default defineComponent({
             });
         },
         send_game_result(result: Array<ColoredResult>) {
+            const players = Array.(this.players);
             this.send([], {
                 id: RequestId.Result,
                 prompt: 'Here are the results!',
@@ -402,8 +403,8 @@ export default defineComponent({
                         });
                     }
                     this.game_data.state = GameState.RoundShow;
-                    this.send_vip_restart_request()
                     this.send_game_result(this.game_data.rounds[this.game_data.current_round].results);
+                    this.send_vip_restart_request()
                     break;
                 }
                 case GameState.RoundShow: {
