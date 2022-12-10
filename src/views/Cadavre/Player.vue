@@ -68,14 +68,7 @@ export default defineComponent({
                         @keyup.enter="send()">
                 </div>
             </div>
-            <div class="field">
-                <a class="button is-success is-fullwidth"
-                    v-show="request.type == RequestType.Input || request.type == RequestType.Button"
-                    v-on:click="send()">
-                    {{ request.button }}
-                </a>
-            </div>
-            <div v-if="request.type == RequestType.Output">
+            <div v-if="request.type == RequestType.Output || request.type == RequestType.OutputButton">
                 <div class="field" v-for="value in (request.value)">
                     <span class="has-text-weight-semibold" v-bind:class="value.subject.class">{{ value.subject.value }}
                         &nbsp;</span>
@@ -86,6 +79,13 @@ export default defineComponent({
                     <span class="has-text-weight-semibold"
                         v-bind:class="value.time_complement.class">{{ value.time_complement.value }} &nbsp;</span>
                 </div>
+            </div>
+            <div class="field">
+                <a class="button is-success is-fullwidth"
+                    v-show="request.type == RequestType.Input || request.type == RequestType.Button || request.type == RequestType.OutputButton"
+                    v-on:click="send()">
+                    {{ request.button }}
+                </a>
             </div>
         </div>
     </div>
