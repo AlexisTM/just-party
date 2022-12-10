@@ -22,6 +22,7 @@ export enum RequestType {
   Button = 0,
   Input,
   Output,
+  OutputButton,
   Idle,
 }
 
@@ -29,8 +30,8 @@ export enum RequestId {
   Idle = 0,
   Username,
   VIPStart, // Everybody is in
-  VIPReplay, // Replay same players
   VIPRestart, // Replay new players
+  VIPResultReplay,
   Subject,
   Verb,
   SubjectComplement,

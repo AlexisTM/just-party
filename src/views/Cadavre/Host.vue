@@ -144,8 +144,8 @@ export default defineComponent({
                     this.game_data.state = GameState.PrepareRound;
                     break;
                 }
-                case RequestId.VIPReplay: {
-
+                case RequestId.VIPResultReplay: {
+                    this.game_data.state = GameState.PrepareRound;
                     break;
                 }
                 case RequestId.Idle: {
@@ -279,13 +279,27 @@ export default defineComponent({
             });
         },
         send_game_result(result: Array<ColoredResult>) {
-            const players = Array.(this.players);
-            this.send([], {
+            let players = [... this.players];
+            const vip = this.get_vip() as PlayerData;
+            if (typeof(vip) == 'object') {
+                let index = players.indexOf(vip.player);
+                delete players[index];
+            }
+            this.send(players, {
                 id: RequestId.Result,
                 prompt: 'Here are the results!',
                 type: RequestType.Output,
                 input_default: '',
                 button: '',
+                value: result,
+            });
+
+            this.send([vip.player], {
+                id: RequestId.VIPResultReplay,
+                prompt: 'Here are the results!',
+                type: RequestType.OutputButton,
+                input_default: '',
+                button: 'Play again',
                 value: result,
             });
         },
