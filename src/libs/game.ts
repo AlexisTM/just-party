@@ -130,7 +130,7 @@ class Game {
         this.send(encode(val).buffer);
     }
 
-    prepare(max_players: Number, name: string) {
+    prepare(max_players: number, name: string) {
         this.send_cbor({
             cmd: 'prepare',
             max_players: Number(max_players),
@@ -144,7 +144,7 @@ class Game {
         })
     }
 
-    kick(player: Number) {
+    kick(player: number) {
         this.send_cbor({
             cmd: 'kick',
             player,
@@ -159,7 +159,7 @@ class Game {
 
     // to is an array of user id
     // Data is a raw data (an array or CBOR encoded object)
-    to(to: Array<Number>, data: any) {
+    to(to: Array<number>, data: any) {
         this.send_cbor({
             cmd: 'to',
             to,
@@ -169,7 +169,7 @@ class Game {
 
     // to is an array of user id
     // Data will be cbor encoded
-    to_cbor(to: Array<Number>, data: any) {
+    to_cbor(to: Array<number>, data: any) {
         // CBOR fails to serialize bytearray (its output)
         // serde (ciborium) fails to deserialize the output of this CBOR using Uint8Array
         // Thus converting it all the way to an array in a triple copy design patter.
@@ -181,7 +181,7 @@ class Game {
 
     // to is an array of user id
     // Data is a string
-    to_str(to: Array<Number>, data: string) {
+    to_str(to: Array<number>, data: string) {
         this.send_cbor({
             cmd: 'to_str',
             to,

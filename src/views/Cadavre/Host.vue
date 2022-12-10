@@ -4,23 +4,11 @@ import router from '../../router';
 import Game from '../../libs/game';
 import { decode } from 'cborg';
 import type { CadavreRequest, CadavreResponse, ColoredResult } from './comm';
+import { RequestId, RequestType } from './comm';
 import { all } from 'axios';
 
 interface Scores {
     [key: number]: number
-}
-
-enum ResponseType {
-    Idle = 0,
-    Username,
-    VIPStart, // Everybody is in
-    VIPReplay, // Replay same players
-    VIPRestart, // Replay new players
-    Subject,
-    Verb,
-    SubjectComplement,
-    TimeComplement,
-    Result,
 }
 
 enum GameState {
@@ -97,15 +85,16 @@ export default defineComponent({
             data_dest: "[]", //
             game: new Game(),
             request: {
-                id: 0,
+                id: 0 as RequestId,
                 prompt: 'Choose a username',
-                type: 'input',
+                type: RequestType.Input,
                 input_default: 'Someone good',
                 button: 'Send',
                 value: [],
             } as CadavreRequest,
             timer_s: 0,
             players_data: {} as Players,
+            done_count: 0,
             game_data: {
                 state: GameState.PreparingGame,
                 scores: {} as Scores,
@@ -125,11 +114,11 @@ export default defineComponent({
         this.game.on_player_data = (data: any) => {
             const player = data.from;
             const player_reply = JSON.parse(data.data) as CadavreResponse;
-            const player_response_type = player_reply.id as ResponseType;
+            const player_response_type = player_reply.id as RequestId;
             const player_data = player_reply.value;
 
             switch (player_response_type) {
-                case ResponseType.Username: {
+                case RequestId.Username: {
                     this.players_data[player] = {
                         player: player,
                         username: player_data,
@@ -146,39 +135,39 @@ export default defineComponent({
                     }
                     break;
                 }
-                case ResponseType.VIPStart: {
+                case RequestId.VIPStart: {
                     this.game.start(); // Prevent more people to join
                     this.game_data.state = GameState.PrepareRound;
                     break;
                 }
-                case ResponseType.VIPRestart: {
+                case RequestId.VIPRestart: {
                     this.game_data.state = GameState.PrepareRound;
                     break;
                 }
-                case ResponseType.VIPReplay: {
+                case RequestId.VIPReplay: {
 
                     break;
                 }
-                case ResponseType.Idle: {
+                case RequestId.Idle: {
                     // Nothing should come in.
                     break;
                 }
-                case ResponseType.Subject: {
+                case RequestId.Subject: {
                     this.game_data.rounds[this.game_data.current_round].data[player].subject = player_data;
-                    this.send_game_request([player], ResponseType.Verb, "Give me a verb", "eats");
+                    this.send_game_request([player], RequestId.Verb, "Give me a verb", "eats");
                     break;
                 }
-                case ResponseType.Verb: {
+                case RequestId.Verb: {
                     this.game_data.rounds[this.game_data.current_round].data[player].verb = player_data;
-                    this.send_game_request([player], ResponseType.SubjectComplement, "Give me a complement", "an apple");
+                    this.send_game_request([player], RequestId.SubjectComplement, "Give me a subject complement", "an apple");
                     break;
                 }
-                case ResponseType.SubjectComplement: {
+                case RequestId.SubjectComplement: {
                     this.game_data.rounds[this.game_data.current_round].data[player].complement = player_data;
-                    this.send_game_request([player], ResponseType.TimeComplement, "Give time complement", "in summer");
+                    this.send_game_request([player], RequestId.TimeComplement, "Give time complement", "in summer");
                     break;
                 }
-                case ResponseType.TimeComplement: {
+                case RequestId.TimeComplement: {
                     this.game_data.rounds[this.game_data.current_round].data[player].time_complement = player_data;
                     this.send_idle_request([player], "Waiting for the other players..");
                     this.players_data[player].done = true;
@@ -239,9 +228,9 @@ export default defineComponent({
         },
         send_idle_request(dest: Array<number>, prompt: string) {
             this.send(dest, {
-                id: ResponseType.Idle,
+                id: RequestId.Idle,
                 prompt: prompt,
-                type: '',
+                type: RequestType.Idle,
                 input_default: '',
                 button: '',
                 value: [],
@@ -249,9 +238,9 @@ export default defineComponent({
         },
         send_username_request(dest: Array<number>) {
             this.send(dest, {
-                id: ResponseType.Username,
+                id: RequestId.Username,
                 prompt: 'Choose a username',
-                type: 'input',
+                type: RequestType.Input,
                 input_default: 'John Smith',
                 button: 'Set my name',
                 value: [],
@@ -260,9 +249,9 @@ export default defineComponent({
         send_vip_start_request() {
             let vip = this.get_vip() as PlayerData;
             this.send([vip.player], {
-                id: ResponseType.VIPStart,
+                id: RequestId.VIPStart,
                 prompt: 'Start the game!',
-                type: 'button',
+                type: RequestType.Button,
                 input_default: 'start',
                 button: 'Everybody is in',
                 value: [],
@@ -271,19 +260,19 @@ export default defineComponent({
         send_vip_restart_request() {
             let vip = this.get_vip() as PlayerData;
             this.send([vip.player], {
-                id: ResponseType.VIPRestart,
+                id: RequestId.VIPRestart,
                 prompt: 'Play again with the same players!',
-                type: 'button',
+                type: RequestType.Button,
                 input_default: 'restart',
                 button: 'Restart',
                 value: [],
             });
         },
-        send_game_request(dest: Array<number>, type: ResponseType, prompt: string, input_default: string) {
+        send_game_request(dest: Array<number>, type: RequestId, prompt: string, input_default: string) {
             this.send(dest, {
                 id: type,
                 prompt: prompt,
-                type: 'input',
+                type: RequestType.Input,
                 input_default: input_default,
                 button: 'Send',
                 value: [],
@@ -291,9 +280,9 @@ export default defineComponent({
         },
         send_game_result(result: Array<ColoredResult>) {
             this.send([], {
-                id: ResponseType.Result,
+                id: RequestId.Result,
                 prompt: 'Here are the results!',
-                type: 'output',
+                type: RequestType.Output,
                 input_default: '',
                 button: '',
                 value: result,
@@ -361,14 +350,21 @@ export default defineComponent({
                             time_complement: '',
                         } as PlayerRoundData;
                     }
-                    this.send_game_request([], ResponseType.Subject, "Give me a subject", "A knight");
+                    this.send_game_request([], RequestId.Subject, "Give me a subject", "A knight");
                     break;
                 }
                 case GameState.RoundAsk: {
-                    const not_done_player = (<any>Object).values(this.players_data).find((data: PlayerData) => (data.done == false));
-                    if (not_done_player == undefined) {
+                    const players_data = (<any>Object).values(this.players_data);
+                    this.done_count = (<any>Object).values(this.players_data).reduce((acc: number, data: PlayerData) => {
+                        if (data.done) {
+                            return acc + 1;
+                        }
+                        return acc;
+                    }, 0);
+                    if (this.players.length == this.done_count) {
                         this.game_data.state = GameState.RoundResultCompute;
                     }
+                    console.log(this.done_count, this.players.length);
                     break;
                 }
                 case GameState.RoundResultCompute: {
@@ -454,13 +450,17 @@ export default defineComponent({
             </a>
         </div>
         <div class="box" v-if="game_data.state == GameState.RoundShow">
-            <div v-for="{
-                subject,
-                verb,
-                complement,
-                time_complement
-            } in game_data.rounds[game_data.current_round].results" class="field">
-                {{ subject.value }} {{ verb.value }} {{ complement.value }} {{ time_complement.value }}
+            <div class="field" v-for="value in (game_data.rounds[game_data.current_round].results)">
+                <span class="has-text-weight-semibold" v-bind:class="value.subject.class">{{ value.subject.value }}
+                    &nbsp;</span>
+                <span class="has-text-weight-semibold" v-bind:class="value.verb.class">{{ value.verb.value }}
+                    &nbsp;</span>
+                <span class="has-text-weight-semibold" v-bind:class="value.complement.class">{{ value.complement.value
+                }}
+                    &nbsp;</span>
+                <span class="has-text-weight-semibold" v-bind:class="value.time_complement.class">{{
+                        value.time_complement.value
+                }} &nbsp;</span>
             </div>
         </div>
     </div>

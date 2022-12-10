@@ -1,5 +1,3 @@
-export type RequestType = 'button' | 'input' | 'output' | '';
-
 export interface ColoredResult {
   subject: {
       class: string;
@@ -19,8 +17,37 @@ export interface ColoredResult {
   };
 }
 
-export interface CadavreRequest {
-  id: Number;
+// export type RequestType = RequestType.Button | RequestType.Input | RequestType.Output | '';
+export enum RequestType {
+  Button = 0,
+  Input,
+  Output,
+  Idle,
+}
+
+export enum RequestId {
+  Idle = 0,
+  Username,
+  VIPStart, // Everybody is in
+  VIPReplay, // Replay same players
+  VIPRestart, // Replay new players
+  Subject,
+  Verb,
+  SubjectComplement,
+  TimeComplement,
+  Result,
+  Update,
+};
+
+export interface BaseRequest {
+  id: RequestId;
+}
+
+export interface CadavreUpdate extends BaseRequest {
+  status: string; // To be written on the top right; Likely "Number of done / to be done"
+}
+
+export interface CadavreRequest extends BaseRequest {
   prompt: string;
   type: RequestType;
   input_default?: string;
@@ -29,6 +56,6 @@ export interface CadavreRequest {
 }
 
 export interface CadavreResponse {
-  id: Number;
+  id: RequestId;
   value: string;
 }

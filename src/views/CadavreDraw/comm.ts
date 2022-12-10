@@ -7,7 +7,7 @@ export interface Image {
 }
 
 export interface CadavreRequest {
-  id: Number;
+  id: number;
   prompt: string;
   type: RequestType;
   input_default?: string;
@@ -16,7 +16,7 @@ export interface CadavreRequest {
 }
 
 export interface CadavreResponse {
-  id: Number;
+  id: number;
   value: string;
   image?: Image;
 }
